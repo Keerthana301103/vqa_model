@@ -13,7 +13,7 @@ def load_model():
 processor, model = load_model()
 
 # Streamlit UI
-st.title("Visual Question Answering (VQA) with BLIP 🤖🖼️")
+st.title("Visual Question Answering (VQA)")
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 question = st.text_input("Enter your question about the image:")
 
