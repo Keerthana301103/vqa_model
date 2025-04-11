@@ -2,3 +2,4 @@ fastapi
 transformers>=4.26.0
 torch
 Pillow
+uvicorn
