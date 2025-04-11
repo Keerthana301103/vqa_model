@@ -19,3 +19,8 @@ async def predict(file: UploadFile = File(...), question: str = Form(...)):
     answer = processor.decode(out[0], skip_special_tokens=True)
     
     return {"question": question, "answer": answer}
+
+# Health check route for Render
+@app.get("/")
+def read_root():
+    return {"message": "Visual Question Answering API is running!"}
