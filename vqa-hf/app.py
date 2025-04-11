@@ -1,28 +1,21 @@
-import streamlit as st
+from fastapi import FastAPI, UploadFile, File, Form
 from transformers import BlipProcessor, BlipForQuestionAnswering
 from PIL import Image
-import torch
+import io
 
-# Load the model and processor
-@st.cache_resource
-def load_model():
-    processor = BlipProcessor.from_pretrained("Salesforce/blip-vqa-base")
-    model = BlipForQuestionAnswering.from_pretrained("Salesforce/blip-vqa-base")
-    return processor, model
+app = FastAPI()
 
-processor, model = load_model()
+# Load BLIP VQA model
+processor = BlipProcessor.from_pretrained("Salesforce/blip-vqa-base")
+model = BlipForQuestionAnswering.from_pretrained("Salesforce/blip-vqa-base")
 
-# Streamlit UI
-st.title("Visual Question Answering (VQA)")
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-question = st.text_input("Enter your question about the image:")
-
-if uploaded_file and question:
-    image = Image.open(uploaded_file).convert('RGB')
+@app.post("/predict")
+async def predict(file: UploadFile = File(...), question: str = Form(...)):
+    image_bytes = await file.read()
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    
     inputs = processor(image, question, return_tensors="pt")
     out = model.generate(**inputs)
     answer = processor.decode(out[0], skip_special_tokens=True)
     
-    st.image(image, caption="Uploaded Image", use_column_width=True)
-    st.markdown(f"**Q:** {question}")
-    st.markdown(f"**A:** {answer}")
+    return {"question": question, "answer": answer}
